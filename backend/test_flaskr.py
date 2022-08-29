@@ -100,23 +100,23 @@ class TriviaTestCase(unittest.TestCase):
         self.assertEqual(data['success'],False)
         self.assertEqual(data['message'],'resource not found')
 
-    # def test_delete_question(self):
-    #     res=self.client().delete("/delete_question/10")
-    #     question = Question.query.filter(Question.id == 10).one_or_none()
-    #     data = json.loads(res.data)
-    #     self.assertEqual(res.status_code,200)
-    #     self.assertEqual(data['success'],True)
-    #     self.assertEqual(data["deleted_question"],10)
-    #     self.assertTrue(data["total_of_questions"])
-    #     self.assertEqual(question, None)
+    def test_delete_question(self):
+        res=self.client().delete("/delete_question/10")
+        question = Question.query.filter(Question.id == 10).one_or_none()
+        data = json.loads(res.data)
+        self.assertEqual(res.status_code,200)
+        self.assertEqual(data['success'],True)
+        self.assertEqual(data["deleted_question"],10)
+        self.assertTrue(data["total_of_questions"])
+        self.assertEqual(question, None)
 
-    # def test_404_if_question_does_not_exist(self):
-    #     res = self.client().delete("/delete_question/1000")
-    #     data = json.loads(res.data)
+    def test_404_if_question_does_not_exist(self):
+        res = self.client().delete("/delete_question/1000")
+        data = json.loads(res.data)
    
-    #     self.assertEqual(res.status_code, 422)
-    #     self.assertEqual(data["success"], False)
-    #     self.assertEqual(data["message"], "unprocessable")
+        self.assertEqual(res.status_code, 422)
+        self.assertEqual(data["success"], False)
+        self.assertEqual(data["message"], "unprocessable")
 
 
     def test_create_new_question(self):
