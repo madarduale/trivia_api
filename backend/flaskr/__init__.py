@@ -50,6 +50,8 @@ def create_app(test_config=None):
         # formatted_categories=[]
         # for category in categories:
         #     # formatted_categories.append(category)
+        if len(categories)==0:
+            abort(404)
         return jsonify({
             'success':True,
             'categories':{category.id:category.type for category in categories},
@@ -302,6 +304,31 @@ def create_app(test_config=None):
 
     @app.route("/quizzes", methods=['POST'])
     def quiz(): 
+
+
+
+
+        try:
+            body = request.get_json()
+            category =body.get("quiz_category",None)
+            previous_questions = body.get("previous_questions",None)
+            
+            available_questions=Question.query.filter_by(category=category['id']).filter(Question.id.notin_((previous_questions))).all()
+            # available_questions=Question.query.filter(Category.id==category).filter(Question.id.notin_((previous_questions))).all()
+               
+            
+            if len(available_questions) > 0:
+                randomquestion=available_questions[random.randrange(0, len(available_questions))]
+            else: None
+      
+            return jsonify({
+                'success':True,
+                'question':randomquestion.format(),
+
+            })
+        except:
+            abort(422)
+
         
            try:
                 body = request.get_json()
@@ -322,6 +349,7 @@ def create_app(test_config=None):
                         })
            except:
                   abort(422)
+
 
 
 
