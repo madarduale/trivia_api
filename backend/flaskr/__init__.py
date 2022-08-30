@@ -50,6 +50,8 @@ def create_app(test_config=None):
         # formatted_categories=[]
         # for category in categories:
         #     # formatted_categories.append(category)
+        if len(categories)==0:
+            abort(404)
         return jsonify({
             'success':True,
             'categories':{category.id:category.type for category in categories},
@@ -337,6 +339,7 @@ def create_app(test_config=None):
             previous_questions = body.get("previous_questions",None)
             
             available_questions=Question.query.filter_by(category=category['id']).filter(Question.id.notin_((previous_questions))).all()
+            # available_questions=Question.query.filter(Category.id==category).filter(Question.id.notin_((previous_questions))).all()
                
             
             if len(available_questions) > 0:
