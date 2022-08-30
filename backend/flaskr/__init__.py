@@ -92,7 +92,7 @@ def create_app(test_config=None):
         return jsonify({
             'success':True,
             'questions':formatted_questions[start:end],
-            'total_of_questions':len(questions),
+            'total_questions':len(questions),
             'categories':{category.id: category.type for category in categories},
             'current_category':current_category 
         })
@@ -126,7 +126,7 @@ def create_app(test_config=None):
 
 
 
-    @app.route("/delete_question/<int:question_id>", methods=['DELETE'])
+    @app.route("/questions/<int:question_id>", methods=['DELETE'])
     def delete_question(question_id):
         specific_question=Question.query.filter(Question.id==question_id).one_or_none()
         if specific_question is None: 
@@ -144,7 +144,7 @@ def create_app(test_config=None):
             'questions':formatted_questions[start:end],
             'success':True,
             'deleted_question':specific_question.id,    
-            'total_of_questions':len(questions)
+            'total_questions':len(questions)
 
         })
 
@@ -166,14 +166,14 @@ def create_app(test_config=None):
     """
 
 
-    @app.route("/create_question",methods=['POST'])
+    @app.route("/questions",methods=['POST'])
     def create_question():
         body=request.get_json()
-        new_id=body.get("id",None)
+        # new_id=body.get("id",None)
         new_question=body.get("question",None)
         new_answer=body.get("answer",None)
-        new_category=body.get("category", None)
         new_difficulty=body.get("difficulty", None)
+        new_category=body.get("category", None)
         try:
             new_question=Question(question=new_question,answer=new_answer,category=new_category,difficulty=new_difficulty)
             new_question.insert()
@@ -191,7 +191,7 @@ def create_app(test_config=None):
                 'questions':formatted_questions[start:end],
                 'success':True,
                 'created_question':question.id,
-                'total_of_questions':len(questions)
+                'total_questions':len(questions)
 
                 })
             
@@ -210,21 +210,21 @@ def create_app(test_config=None):
     """
 
 
-    @app.route("/searched_questions", methods=['POST'])
+    @app.route("/questions/search", methods=['POST'])
     def search():
         body=request.get_json()
-        question=body.get("question",None)
-        search_questions=Question.query.filter(Question.question.ilike(f'%{question}%')).all() 
-        formatted_questions=[]
-        questions_per_page=10
-    
-        page=request.args.get('page',1,type=int)
-        start=(page-1)*questions_per_page
-        end=start+questions_per_page
+        search_Term=body.get("searchTerm",None)
+        if search_Term:
+            search_questions=Question.query.filter(Question.question.ilike(f'%{search_Term}%')).all() 
+            formatted_questions=[]
+            questions_per_page=10
         
-        categories=Category.query.all()
-        current_category=[]
-        if search_questions:
+            page=request.args.get('page',1,type=int)
+            start=(page-1)*questions_per_page
+            end=start+questions_per_page
+            
+            categories=Category.query.all()
+            current_category=[]
             for searchquestion in search_questions:
                 for catgory in categories:
                     if catgory.id==int(searchquestion.category):
@@ -234,7 +234,7 @@ def create_app(test_config=None):
             return jsonify({
                 'success':True,
                 'questions':formatted_questions[start:end],
-                'total_of _searched_question':len(search_questions),
+                'total_questions':len(search_questions),
                 'current_category':current_category
 
             })
@@ -275,8 +275,8 @@ def create_app(test_config=None):
 
             return jsonify({
                 'success':True,
-                'question':formatted_questions[start:end],
-                'total_of _searched_question':len(question_based_category),
+                'questions':formatted_questions[start:end],
+                'total_questions':len(question_based_category),
                 'current_category':current_category
             })
         except:
@@ -302,33 +302,65 @@ def create_app(test_config=None):
 
     @app.route("/quizzes", methods=['POST'])
     def quiz(): 
-
-
-        body = request.get_json()
-        category =body.get("category",None)
-        previous_questions = body.get("previous_questions",None)
-        if body:
         
-            available_questions=Question.query.filter(Category.id==category).filter(Question.id.notin_((previous_questions))).all()
-            if len(available_questions) > 0:
-                randomquestion=available_questions[random.randrange(0, len(available_questions))]
-            else: None
-            if available_questions:
-                categories=Category.query.all()
-                for catgory in categories:
-                    if catgory.id==int(category):
-                        current_category=catgory.type
+        try:
 
-                return jsonify({
-                    'success':True,
-                    'question':randomquestion.format(),
-                    'previous_questions':previous_questions,
-                    'quiz_category': current_category
-                })
-            else:
+            body = request.get_json()
+
+            if not ('quiz_category' in body and 'previous_questions' in body):
                 abort(422)
-        else:
+
+            category = body.get('quiz_category')
+            previous_questions = body.get('previous_questions')
+
+            if category['type'] == 'click':
+                available_questions = Question.query.filter(
+                    Question.id.notin_((previous_questions))).all()
+            else:
+                available_questions = Question.query.filter_by(
+                    category=category['id']).filter(Question.id.notin_((previous_questions))).all()
+
+            new_question = available_questions[random.randrange(
+                0, len(available_questions))].format() if len(available_questions) > 0 else None
+
+            return jsonify({
+                'success': True,
+                'question': new_question
+            })
+        except:
             abort(422)
+
+
+
+        # try:
+        #     body = request.get_json()
+        #     category =body.get("quiz_category",None)
+        #     previous_questions = body.get("previous_questions",None)
+
+        #     if category['type'] == 'click':
+        #         available_questions=Question.query.filter(Category.id==category).filter(Question.id.notin_((previous_questions))).all()
+        #         # available_questions = Question.query.filter(Question.id.notin_((previous_questions))).all()
+            
+            
+        #         if len(available_questions) > 0:
+        #             randomquestion=available_questions[random.randrange(0, len(available_questions))]
+        #         else: None
+        #         # if available_questions:
+        #         categories=Category.query.all()
+        #         for catgory in categories:
+        #             if catgory.id==int(category):
+        #                 current_category=catgory.type 
+
+        #         return jsonify({
+        #             'success':True,
+        #             'question':randomquestion.format(),
+        #             'previous_questions':previous_questions,
+        #             'quiz_category': current_category
+        #         })
+        #     # else:
+        #     #     abort(422)
+        # except:
+        #     abort(422)
 
 
 
