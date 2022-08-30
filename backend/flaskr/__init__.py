@@ -332,36 +332,7 @@ def create_app(test_config=None):
 
 
 
-        # try:
-        #     body = request.get_json()
-        #     category =body.get("quiz_category",None)
-        #     previous_questions = body.get("previous_questions",None)
-
-        #     if category['type'] == 'click':
-        #         available_questions=Question.query.filter(Category.id==category).filter(Question.id.notin_((previous_questions))).all()
-        #         # available_questions = Question.query.filter(Question.id.notin_((previous_questions))).all()
-            
-            
-        #         if len(available_questions) > 0:
-        #             randomquestion=available_questions[random.randrange(0, len(available_questions))]
-        #         else: None
-        #         # if available_questions:
-        #         categories=Category.query.all()
-        #         for catgory in categories:
-        #             if catgory.id==int(category):
-        #                 current_category=catgory.type 
-
-        #         return jsonify({
-        #             'success':True,
-        #             'question':randomquestion.format(),
-        #             'previous_questions':previous_questions,
-        #             'quiz_category': current_category
-        #         })
-        #     # else:
-        #     #     abort(422)
-        # except:
-        #     abort(422)
-
+       
 
 
     """
