@@ -305,31 +305,6 @@ def create_app(test_config=None):
     @app.route("/quizzes", methods=['POST'])
     def quiz(): 
 
-        # try:
-
-        #     body = request.get_json()
-
-            
-
-        #     category = body.get('quiz_category')
-        #     previous_questions = body.get('previous_questions')
-
-        #     # if category['type'] == 'click':available_questions = Question.query.filter(Question.id.notin_((previous_questions))).all()
-        #     # else:
-        #     available_questions = Question.query.filter_by(category=category['id']).filter(Question.id.notin_((previous_questions))).all()
-
-        #     # new_question = available_questions[random.randrange(
-        #     #     0, len(available_questions))].format() if len(available_questions) > 0 else None
-        #     if len(available_questions) > 0:
-        #              randomquestion=available_questions[random.randrange(0, len(available_questions))]
-        #     else: None
-
-        #     return jsonify({
-        #         'success': True,
-        #         'question': randomquestion.format()
-        #     })
-        # except:
-        #     abort(422)
 
 
 
@@ -345,23 +320,40 @@ def create_app(test_config=None):
             if len(available_questions) > 0:
                 randomquestion=available_questions[random.randrange(0, len(available_questions))]
             else: None
-            # categories=Category.query.all()
-            # if available_questions:
-            #     for catgory in categories:
-            #         if catgory.id==int(category):
-            #             current_category=catgory.type 
-
-            #         else:
-            #             abort(422)
+      
             return jsonify({
                 'success':True,
                 'question':randomquestion.format(),
-                # 'previous_questions':previous_questions,
-                # 'quiz_category': current_category
+
             })
         except:
             abort(422)
 
+        
+           try:
+                body = request.get_json()
+                category =body.get("quiz_category",None)
+                previous_questions = body.get("previous_questions",None)
+            
+                available_questions=Question.query.filter_by(category=category['id']).filter(Question.id.notin_((previous_questions))).all()
+               
+            
+                if len(available_questions) > 0:
+                      randomquestion=available_questions[random.randrange(0, len(available_questions))]
+                else: None
+           
+                 return jsonify({
+                        'success':True,
+                        'question':randomquestion.format(),
+               
+                        })
+           except:
+                  abort(422)
+
+
+
+
+       
 
 
     """
