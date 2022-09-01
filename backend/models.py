@@ -7,10 +7,6 @@ from settings import DB_NAME, DB_USER, DB_PASSWORD, DB_HOST, DB_PORT
 
 database_path = f"postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
 
-# database_path = "postgres://{}/{}/{}/{}".format('localhost:5432',database_name)
-# app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:password@localhost/flasksql'
-
-
 db = SQLAlchemy()
 
 """
